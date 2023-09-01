@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel, create_engine
 from sqlmodel.ext.asyncio.session import AsyncEngine, AsyncSession
 
+
 default_db_url = (
     "postgresql://postgres_user:placeholder_password@localhost:5432/postgres_db"
 )

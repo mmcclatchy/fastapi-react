@@ -1,5 +1,6 @@
-from db.models.app_model import AppModel
 from sqlmodel import Field, SQLModel
+
+from db.models.app_model import AppModel
 
 
 class User(AppModel, table=True):

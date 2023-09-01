@@ -21,3 +21,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.isort]
 combine_star = true
 combine_as_imports = true
+lines_after_imports = 2

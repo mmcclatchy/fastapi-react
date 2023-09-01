@@ -1,10 +1,9 @@
-import logging
-
 from fastapi import Depends, FastAPI
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db.database import get_session, init_db
 from db.models.user import User, UserCreate
+
 
 app = FastAPI()
 
@@ -28,7 +27,6 @@ async def get_users(session: AsyncSession = Depends(get_session)):
 @app.get("/users/{user_id}", response_model=User)
 async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     user: User = await User.get(session, user_id)
-    logging.info(f"User Name: {user.name}, User Email: {user.email}")
     return user
 
 

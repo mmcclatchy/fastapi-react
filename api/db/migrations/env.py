@@ -8,6 +8,7 @@ from models import User
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
+
 connection_string = environ["DATABASE_URL"]
 
 # this is the Alembic Config object, which provides
