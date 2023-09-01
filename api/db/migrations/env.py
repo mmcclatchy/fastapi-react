@@ -1,25 +1,19 @@
 from logging.config import fileConfig
 from os import environ
-import sys
 
 from alembic import context
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-from sqlmodel import SQLModel
 
-print('================================')
-print(sys.path)
-print('================================')
-
+# trunk-ignore(ruff/F401)
 from models import User
-
+from sqlalchemy import engine_from_config, pool
+from sqlmodel import SQLModel
 
 connection_string = environ["DATABASE_URL"]
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option('sqlalchemy.url', connection_string)
+config.set_main_option("sqlalchemy.url", connection_string)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -44,7 +38,7 @@ def run_migrations_offline() -> None:
     This configures the context with just a URL
     and not an Engine, though an Engine is acceptable
     here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
+    we don't even need a DB API to be available.
 
     Calls to context.execute() here emit the given string to the
     script output.
@@ -76,9 +70,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

@@ -9,7 +9,7 @@ class AppModel(SQLModel):
         results = await session.exec(statement)
         model = results.one_or_none()
         return model
-    
+
     @classmethod
     async def get_all(cls, session: AsyncSession) -> list[SQLModel]:
         results = await session.exec(select(cls))
