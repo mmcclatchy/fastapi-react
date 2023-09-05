@@ -20,20 +20,14 @@ def health_check():
 
 @app.get("/users", response_model=list[User])
 async def get_users(session: AsyncSession = Depends(get_session)):
-    users: list[User] = await User.get_all(session)
-    return users
+    return await User.get_all(session)
 
 
 @app.get("/users/{user_id}", response_model=User)
 async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
-    user: User = await User.get(session, user_id)
-    return user
+    return await User.get(session, user_id)
 
 
 @app.post("/users", response_model=User)
 async def create_user(user: UserCreate, session: AsyncSession = Depends(get_session)):
-    db_user: User = User(name=user.name, email=user.email)
-    session.add(db_user)
-    await session.commit()
-    await session.refresh(db_user)
-    return db_user
+    return await User(name=user.name, email=user.email).create(session)
