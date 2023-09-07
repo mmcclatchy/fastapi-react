@@ -1,9 +1,9 @@
 from sqlmodel import Field, SQLModel
 
-from db.models.app_model import AppModel
+from db.models.table_model import TableModel
 
 
-class User(AppModel, table=True):
+class User(TableModel, table=True):
     id: int = Field(primary_key=True)
     name: str = Field(max_length=100)
     email: str = Field(max_length=100)
@@ -12,3 +12,8 @@ class User(AppModel, table=True):
 class UserCreate(SQLModel):
     name: str
     email: str
+
+
+class UserUpdate(SQLModel):
+    name: str | None
+    email: str | None
