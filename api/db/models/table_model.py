@@ -1,7 +1,5 @@
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.orm import Query
 from sqlalchemy.sql.expression import BinaryExpression
-from sqlmodel import SQLModel, insert, select, update
+from sqlmodel import SQLModel, insert, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
