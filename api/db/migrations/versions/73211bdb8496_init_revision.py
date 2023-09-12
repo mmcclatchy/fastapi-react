@@ -1,18 +1,19 @@
 """init revision
 
-Revision ID: 86e9f348179f
+Revision ID: 73211bdb8496
 Revises:
-Create Date: 2023-09-01 02:08:32.994880
+Create Date: 2023-09-12 00:32:30.882079
 
 """
 from typing import Sequence, Union
 
 import sqlalchemy as sa
+import sqlmodel
 from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision: str = "86e9f348179f"
+revision: str = "73211bdb8496"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

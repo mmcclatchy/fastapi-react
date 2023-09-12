@@ -1,11 +1,12 @@
-from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Response
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db.database import get_session, init_db
-from db.models.user import User, UserCreate, UserUpdate
+from db.models.account import Account, AccountCreate, AccountUpdate
 
 
 app = FastAPI()
+router = APIRouter(prefix="/v1")
 
 
 @app.on_event("startup")
@@ -13,48 +14,65 @@ async def on_startup():
     await init_db()
 
 
-@app.get("/")
+@router.get("/")
 def health_check():
-    return {"message": "Good to go"}
+    return {"message": "Health Check"}
 
 
-@app.get("/users", response_model=list[User])
-async def get_users(session: AsyncSession = Depends(get_session)) -> list[User]:
-    return await User.get_all_where(session, [])
+@router.get("/accounts", response_model=list[Account])
+async def get_accounts(session: AsyncSession = Depends(get_session)) -> list[Account]:
+    return await Account.get_all_where(session, [])
 
 
-@app.get("/users/{user_id}", response_model=User)
-async def get_user(user_id: int, session: AsyncSession = Depends(get_session)) -> User:
-    user = await User.get_by_id(session, user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+@router.get("/accounts/{account_id}", response_model=Account)
+async def get_account(
+    account_id: int, session: AsyncSession = Depends(get_session)
+) -> Account:
+    account = await Account.get_by_id(session, account_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+    return account
 
 
-@app.post("/users", response_model=User)
-async def create_user(
-    user: UserCreate, session: AsyncSession = Depends(get_session)
-) -> User:
-    return await User(name=user.name, email=user.email).create(session)
+@router.post("/accounts", response_model=Account, status_code=201)
+async def create_account(
+    account: AccountCreate, session: AsyncSession = Depends(get_session)
+) -> Account:
+    return await Account(**account.dict()).create(session)
 
 
-@app.patch("/users/{user_id}", response_model=User)
-async def update_user(
-    user_id: int, user_update: UserUpdate, session: AsyncSession = Depends(get_session)
-) -> User:
-    user = await User.get_by_id(session, user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    await user.update(session, user_update)
-    return user
+@router.patch("/accounts/{account_id}", response_model=Account)
+async def update_account(
+    account_id: int,
+    account_update: AccountUpdate,
+    session: AsyncSession = Depends(get_session),
+) -> Account:
+    account = await Account.get_by_id(session, account_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+    await account.update(session, account_update)
+    return account
 
 
-@app.delete("/users/{user_id}")
-async def delete_user(
-    user_id: int, session: AsyncSession = Depends(get_session)
+@router.delete("/accounts/{account_id}", status_code=204)
+async def delete_account(
+    account_id: int, session: AsyncSession = Depends(get_session)
 ) -> Response:
-    user = await User.get_by_id(session, user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    await user.delete(session)
-    return Response(status_code=204)
+    account = await Account.get_by_id(session, account_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+    await account.delete(session)
+
+
+@router.patch("/test/{account_id}", response_model=Account)
+async def test(
+    account_id: int,
+    account_update: AccountUpdate,
+    session: AsyncSession = Depends(get_session),
+) -> Account:
+    account = await Account.get_by_id(session, account_id)
+    await account.update(session, account_update)
+    return account
+
+
+app.include_router(router)
