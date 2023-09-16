@@ -17,9 +17,7 @@ RUN useradd -ms /bin/bash myuser
 
 USER myuser
 
-RUN poetry install --no-root
-
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl --fail http://localhost:8080/ || exit 1
+RUN poetry install
 
 # # Set the development command if ENVIRONMENT is set to development
 # RUN if [ "$ENVIRONMENT" = "development" ]; then echo "Running in development mode"; fi

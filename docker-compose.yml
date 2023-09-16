@@ -20,7 +20,7 @@ services:
       - ./api:/app
       - db-data:/var/lib/postgresql/data
     environment:
-      - PORT=8080
+      - ENV=dev
       - DB_URL=postgresql+asyncpg://myuser:mypassword@db:5432/mydb
     ports:
       - 8080:8080

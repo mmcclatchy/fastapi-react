@@ -1,17 +1,12 @@
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Response
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from db.database import get_session, init_db
+from db.database import get_session
 from db.models.account import Account, AccountCreate, AccountUpdate
 
 
 app = FastAPI()
 router = APIRouter(prefix="/v1")
-
-
-@app.on_event("startup")
-async def on_startup():
-    await init_db()
 
 
 @router.get("/")

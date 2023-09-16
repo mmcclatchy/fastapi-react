@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "api"
+name = "db"
 version = "0.1.0"
 description = ""
 authors = ["Mark McClatchy <markmcclatchy@gmail.com>"]
@@ -28,3 +28,6 @@ build-backend = "poetry.core.masonry.api"
 combine_star = true
 combine_as_imports = true
 lines_after_imports = 2
+
+[tool.poetry.scripts]
+db = "scripts.db:main"
