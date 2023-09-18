@@ -10,29 +10,67 @@ alembic_cfg = Config(f"{app_root_path}/db/alembic.ini")
 alembic_cfg.set_main_option("script_location", f"{os.getcwd()}/db/migrations")
 
 
-def upgrade(revision="head"):
-    command.upgrade(alembic_cfg, revision)
+def get_script_args():
+    parser = argparse.ArgumentParser(description="Alembic upgrade or rebuild")
+    subparsers = parser.add_subparsers(dest="command", help="upgrade or rebuild")
+    upgrade_parser = subparsers.add_parser("upgrade", help="upgrade alembic revision")
+    upgrade_parser.add_argument(
+        "--revision", default="head", help="revision hash -- default value: 'head'"
+    )
+    subparsers.add_parser(
+        "rebuild", help="Tear down and rebuild database in 'dev' environment only"
+    )
+    revision_parser = subparsers.add_parser(
+        "revision", help="create new alembic revision"
+    )
+    revision_parser.add_argument(
+        "revision_message", help="alembic revision description message"
+    )
+    return parser.parse_args()
 
 
 def rebuild():
-    command.downgrade(alembic_cfg, "base")
-    command.upgrade(alembic_cfg, "head")
+    if os.getenv.get("ENV") == "dev":
+        command.downgrade(alembic_cfg, "base")
+        command.upgrade(alembic_cfg, "head")
+    else:
+        raise EnvironmentError(
+            "The 'rebuild' command can only be run in the 'dev' environment."
+        )
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Alembic upgrade or rebuild")
-    subparsers = parser.add_subparsers(dest="command", help="upgrade or rebuild")
-    upgrade_parser = subparsers.add_parser("upgrade")
-    upgrade_parser.add_argument(
-        "--revision", default="head", help="default value: 'head'"
-    )
-    subparsers.add_parser("rebuild")
-    args = parser.parse_args()
+    """
+    Run Alembic commands to upgrade or rebuild the database.
 
-    if args.command == "upgrade":
-        upgrade(args.revision)
-    elif args.command == "rebuild":
-        if os.getenv.get("ENV") == "dev":
+    This function uses the Alembic library to perform database migrations and revisions.
+    It supports the following commands:
+
+    - 'upgrade': Upgrade the database to a specific revision or to the latest revision.
+    - 'rebuild': Tear down and rebuild the database in the 'dev' environment only.
+    - 'revision': Create a new Alembic revision with the specified revision message.
+
+    Usage:
+        python my_script.py upgrade [--revision REVISION_HASH]
+        python my_script.py rebuild
+        python my_script.py revision REVISION_MESSAGE
+
+    Raises:
+        ValueError: If an invalid command is provided.
+        EnvironmentError: If the 'rebuild' command is run in an environment other than 'dev'.
+    """
+
+    args = get_script_args()
+
+    match args.command:
+        case "upgrade":
+            command.upgrade(alembic_cfg, args.revision)
+
+        case "rebuild":
             rebuild()
-    else:
-        raise ValueError("Invalid command")
+
+        case "revision":
+            command.revision(alembic_cfg, args.revision_message, autogenerate=True)
+
+        case _:
+            raise ValueError("Invalid command")
