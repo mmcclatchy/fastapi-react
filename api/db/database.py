@@ -1,5 +1,3 @@
-from os import environ
-
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel, create_engine
 from sqlmodel.ext.asyncio.session import AsyncEngine, AsyncSession

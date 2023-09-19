@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0
+    rev: v4.4.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
@@ -10,12 +10,12 @@ repos:
       #   args: ['--branch', 'main']
 
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 23.9.1
     hooks:
       - id: black
 
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.48.0
+    rev: v8.49.0
     hooks:
       - id: eslint
         additional_dependencies:
@@ -55,3 +55,8 @@ repos:
     rev: v1.5.1
     hooks:
       - id: mypy
+
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
