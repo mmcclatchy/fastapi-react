@@ -28,8 +28,8 @@ class TableModel(SQLModel):
         cls, session: AsyncSession, filters: list[BinaryExpression]
     ) -> SQLModel | None:
         statement = select(cls).where(*filters)
-        result = session.exec(statement)
-        model = await result.one_or_none()
+        result = await session.exec(statement)
+        model = result.one_or_none()
         return model
 
     async def create(self, session: AsyncSession) -> SQLModel:
