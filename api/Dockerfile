@@ -11,7 +11,7 @@ VOLUME [ "./app" ]
 
 FROM builder as dev-envs
 
-RUN apt-get update && apt-get install -y --no-install-recommends git curl
+RUN apt-get update && apt-get install -y --no-install-recommends git curl build-essential
 
 RUN useradd -ms /bin/bash myuser
 
