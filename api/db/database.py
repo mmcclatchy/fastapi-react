@@ -2,7 +2,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel import create_engine
 from sqlmodel.ext.asyncio.session import AsyncEngine, AsyncSession
 
-from settings import settings
+from utils.settings import settings
 
 
 engine = AsyncEngine(create_engine(settings.db_url, echo=True, future=True))

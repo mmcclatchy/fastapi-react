@@ -57,7 +57,8 @@ def main():
     This function uses the Alembic library to perform database migrations and revisions.
     It supports the following commands:
 
-    - 'upgrade': Upgrade the database to a specific revision or to the latest revision.
+    - 'upgrade': Upgrade the database to a specific revision        (Default: latest revision).
+    - 'downgrade': Downgrade the database to a specific revision    (Default: base revision).
     - 'rebuild': Tear down and rebuild the database in the 'dev' environment only.
     - 'revision': Create a new Alembic revision with the specified revision message.
 

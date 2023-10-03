@@ -1,15 +1,39 @@
 from typing import Optional
 
+from passlib.context import CryptContext
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
 
 from db.models.table_model import TableModel
 
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 class Account(TableModel, table=True):
     id: int = Field(primary_key=True)
     username: str = Field(max_length=100, unique=True)
-    email: str = Field(max_length=254)
+    email: str = Field(min_length=6, max_length=254)
+    _disabled: bool = Field(default=False)
+    _hashed_password: str = Field(min_length=44, max_length=72)
+
+    @property
+    def disabled(self):
+        return False
+
+    @property
+    def password(self) -> str:
+        # return self._hashed_password
+        return "faked-hash+test"
+
+    @password.setter
+    def password(self, unencrypted_password: str) -> None:
+        # self._hashed_password = pwd_context.hash(unencrypted_password)
+        setattr(self, "_fake_password", f"faked-hash+{unencrypted_password}")
+
+    def verify_password(self, attempted_password: str) -> bool:
+        # return self._hashed_password == pwd_context.hash(attempted_password)
+        return self.password == f"faked-hash+{attempted_password}"
 
 
 class AccountCreate(SQLModel):
@@ -20,3 +44,8 @@ class AccountCreate(SQLModel):
 class AccountUpdate(SQLModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
+
+
+class AccountResponse(AccountCreate):
+    id: int
+    disabled: bool

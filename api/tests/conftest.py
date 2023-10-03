@@ -10,10 +10,12 @@ from sqlmodel.ext.asyncio.session import AsyncEngine, AsyncSession
 
 from db.database import get_session
 from main import app
-from settings import API_V1_PREFIX, TEST_DB_URL
+from utils.settings import settings
 
 
-test_async_engine = AsyncEngine(create_engine(TEST_DB_URL, echo=True, future=True))
+test_async_engine = AsyncEngine(
+    create_engine(settings.test_db_url, echo=True, future=True)
+)
 
 
 pytest_plugins = ["tests.fixtures.accounts"]
@@ -45,5 +47,5 @@ async def session() -> AsyncSession:
 
 @pytest_asyncio.fixture
 async def client(event_loop, session):
-    async with AsyncClient(app=app, base_url=API_V1_PREFIX) as c:
+    async with AsyncClient(app=app, base_url=f"{settings.api_base_url}/v1") as c:
         yield c
