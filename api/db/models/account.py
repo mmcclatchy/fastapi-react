@@ -10,6 +10,9 @@ from db.models.table_model import TableModel
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 class Account(TableModel, table=True):
     id: int = Field(primary_key=True)
     username: str = Field(max_length=100, unique=True)
