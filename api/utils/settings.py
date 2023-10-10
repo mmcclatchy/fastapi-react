@@ -15,6 +15,10 @@ class Settings(BaseSettings):
 
     algorithm: str
     secret_key: str
+    discord_client_id: str
+    discord_client_secret: str
+    github_client_id: str
+    github_client_secret: str
     google_client_id: str
     google_client_secret: str
 

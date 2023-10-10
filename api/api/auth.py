@@ -1,3 +1,4 @@
+from secrets import token_urlsafe
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
@@ -31,6 +32,7 @@ async def auth(
 @router.get("/login/{provider_name}")
 async def login_provider(provider_name: str, request: Request):
     request.session.clear()
+    request.session["nonce"] = token_urlsafe(16)
     authenticator = Authenticator(provider_name=provider_name)
     return await authenticator.authorize_redirect(request)
 

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Annotated, Any
+from typing import Annotated, Any, Callable
 
 import google.auth.transport.requests
 from authlib.integrations.starlette_client import OAuth, OAuthError
@@ -48,14 +48,14 @@ class Authenticator:
     #     client_id=settings.github_client_id,
     #     client_secret=settings.github_client_secret,
     # )
-    # oauth.register(
-    #     "discord",
-    #     authorize_url="https://discord.com/api/oauth2/authorize",
-    #     access_token_url="https://discord.com/api/oauth2/token",
-    #     client_kwargs={"scope": "identify"},
-    #     client_id=settings.discord_client_id,
-    #     client_secret=settings.discord_client_secret,
-    # )
+    oauth.register(
+        "discord",
+        authorize_url="https://discord.com/oauth2/authorize",
+        access_token_url="https://discord.com/api/oauth2/token",
+        client_kwargs={"scope": "identify email"},
+        client_id=settings.discord_client_id,
+        client_secret=settings.discord_client_secret,
+    )
 
     CredentialsException = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -120,8 +120,10 @@ class Authenticator:
         return account
 
     async def authorize_redirect(self, request: Request):
-        redirect_url = f"{settings.api_base_url}/auth/google"
-        return await self.provider.authorize_redirect(request, redirect_url)
+        redirect_url = f"{settings.api_base_url}/auth/{self.provider_name}"
+        nonce = request.session.get("nonce")
+        print(f"============\n\Auth Redirect Nonce:\n{nonce}\n\n============")
+        return await self.provider.authorize_redirect(request, redirect_url, nonce=nonce)
 
     async def create_access_token_via_provider(self, request: Request) -> Token:
         try:
@@ -132,7 +134,7 @@ class Authenticator:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=error.error
             )
 
-        user_data = await self.get_user_data(provider_token)
+        user_data = await self.get_user_data(provider_token, request)
         account = await Account.get_one_where(self.session, [Account.email == user_data.email])
         if account is None:
             account = await Account(
@@ -149,33 +151,33 @@ class Authenticator:
             raise self.CredentialsException
         return OauthData(**id_data)
 
-    # @classmethod
-    # def user_data_higher_order_function(cls, provider_user_url: str) -> Callable:
-    #     async def _get_user_data(token: Token) -> OauthData:
-    #         headers = {"Authorization": f"Bearer {token}"}
-    #         async with AsyncClient() as client:
-    #             response = await client.get(provider_user_url, headers=headers)
+    @classmethod
+    def get_provider_identity_function(cls, provider_user_url: str) -> Callable:
+        async def _get_user_data(token: Token) -> OauthData:
+            headers = {"Authorization": f"Bearer {token}"}
+            async with AsyncClient() as client:
+                response = await client.get(provider_user_url, headers=headers)
 
-    #             if response.status_code != 200:
-    #                 logger.error(
-    #                     f"Oauth Client Error - status: {response.status_code}, "
-    #                     + f"provider_url: {provider_user_url}"
-    #                 )
-    #                 raise cls.CredentialsException
+                if response.status_code != 200:
+                    logger.error(
+                        f"Oauth Client Error - status: {response.status_code}, "
+                        + f"provider_url: {provider_user_url}"
+                    )
+                    raise cls.CredentialsException
 
-    #             user_data = response.json()
-    #             return OauthData(**user_data)
+                user_data = response.json()
+                return OauthData(**user_data)
 
-    #     return _get_user_data
+        return _get_user_data
 
     # @classmethod
     # async def get_github_user_data(cls, token: Token) -> OauthData:
     #     github_url = "https://api.github.com/user"
-    #     _get_github_user_data = cls.user_data_higher_order_function(github_url)
+    #     _get_github_user_data = cls.get_provider_identity_function(github_url)
     #     return await _get_github_user_data(token)
 
-    # @classmethod
-    # async def get_discord_user_data(cls, token: str) -> OauthData:
-    #     discord_url = "https://discord.com/api/users/@me"
-    #     _get_github_user_data = cls.user_data_higher_order_function(discord_url)
-    #     return await _get_github_user_data(token)
+    @classmethod
+    async def get_discord_user_data(cls, token: dict[str, Any]) -> OauthData:
+        discord_url = "https://discord.com/api/users/@me"
+        get_discord_identity = cls.get_provider_identity_function(discord_url)
+        return await get_discord_identity(token["access_token"])
