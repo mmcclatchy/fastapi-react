@@ -3,8 +3,14 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db.database import get_session
-from db.models.account import Account, AccountCreate, AccountResponse, AccountUpdate
-from utils.auth import get_active_account
+from db.models.account import (
+    Account,
+    AccountCreate,
+    AccountJWT,
+    AccountResponse,
+    AccountUpdate,
+)
+from utils.auth import Authenticator
 
 
 router = APIRouter(prefix="/accounts")
@@ -15,22 +21,18 @@ async def get_accounts(session: AsyncSession = Depends(get_session)) -> list[Acc
     return await Account.get_all_where(session, [])
 
 
-@router.get("/me", response_model=AccountResponse)
+@router.get("/me", response_model=AccountJWT)
 async def get_current_account(
-    active_account: Account = Depends(get_active_account),
-) -> Account:
-    return active_account
+    jwt_data: AccountJWT = Depends(Authenticator.decode_token),
+) -> AccountJWT:
+    return jwt_data
 
 
 @router.get("/{account_id}", response_model=AccountResponse)
-async def get_account(
-    account_id: int, session: AsyncSession = Depends(get_session)
-) -> Account:
+async def get_account(account_id: int, session: AsyncSession = Depends(get_session)) -> Account:
     account = await Account.get_by_id(session, account_id)
     if account is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
     return account
 
 
@@ -54,20 +56,14 @@ async def update_account(
 ) -> Account:
     account = await Account.get_by_id(session, account_id)
     if account is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
     await account.update(session, account_update)
     return account
 
 
 @router.delete("/{account_id}", status_code=204)
-async def delete_account(
-    account_id: int, session: AsyncSession = Depends(get_session)
-) -> Response:
+async def delete_account(account_id: int, session: AsyncSession = Depends(get_session)) -> Response:
     account = await Account.get_by_id(session, account_id)
     if account is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
     await account.delete(session)

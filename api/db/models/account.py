@@ -1,7 +1,5 @@
-from typing import Optional
-
 from passlib.context import CryptContext
-from pydantic import EmailStr
+from pydantic import EmailStr, Field
 from sqlmodel import Field, SQLModel
 
 from db.models.table_model import TableModel
@@ -10,7 +8,24 @@ from db.models.table_model import TableModel
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+class AccountCreate(SQLModel):
+    username: str
+    email: EmailStr
+
+
+class AccountUpdate(SQLModel):
+    username: str | None = Field(default=None)
+    email: EmailStr | None = Field(default=None)
+
+
+class AccountResponse(AccountCreate):
+    id: int
+    disabled: bool
+
+
+class AccountJWT(AccountCreate):
+    sub: str
+    disabled: bool = Field(default=False)
 
 
 class Account(TableModel, table=True):
@@ -19,9 +34,12 @@ class Account(TableModel, table=True):
     email: str = Field(min_length=6, max_length=254)
     _disabled: bool = Field(default=False)
     _hashed_password: str = Field(min_length=44, max_length=72)
+    _external_oauth: bool = Field(default=False)
 
     @property
     def disabled(self):
+        # TODO: DELETE THIS
+
         return False
 
     @property
@@ -38,17 +56,5 @@ class Account(TableModel, table=True):
         # return self._hashed_password == pwd_context.hash(attempted_password)
         return self.password == f"faked-hash+{attempted_password}"
 
-
-class AccountCreate(SQLModel):
-    username: str
-    email: EmailStr
-
-
-class AccountUpdate(SQLModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-
-
-class AccountResponse(AccountCreate):
-    id: int
-    disabled: bool
+    def jwt(self) -> AccountJWT:
+        return AccountJWT(sub=self.id, **self.dict())

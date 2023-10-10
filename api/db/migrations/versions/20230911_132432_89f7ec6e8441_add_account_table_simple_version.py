@@ -24,12 +24,8 @@ def upgrade() -> None:
     op.create_table(
         "account",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column(
-            "username", sqlmodel.sql.sqltypes.AutoString(length=100), nullable=False
-        ),
-        sa.Column(
-            "email", sqlmodel.sql.sqltypes.AutoString(length=254), nullable=False
-        ),
+        sa.Column("username", sqlmodel.sql.sqltypes.AutoString(length=100), nullable=False),
+        sa.Column("email", sqlmodel.sql.sqltypes.AutoString(length=254), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("username"),
     )

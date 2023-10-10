@@ -13,9 +13,7 @@ from main import app
 from utils.settings import settings
 
 
-test_async_engine = AsyncEngine(
-    create_engine(settings.test_db_url, echo=True, future=True)
-)
+test_async_engine = AsyncEngine(create_engine(settings.test_db_url, echo=True, future=True))
 
 
 pytest_plugins = ["tests.fixtures.accounts"]

@@ -19,9 +19,7 @@ def get_script_args():
         "--revision", default="head", help="revision hash -- default value: 'head'"
     )
 
-    downgrade_parser = subparsers.add_parser(
-        "downgrade", help="downgrade alembic revision"
-    )
+    downgrade_parser = subparsers.add_parser("downgrade", help="downgrade alembic revision")
     downgrade_parser.add_argument(
         "--revision", default="base", help="revision hash -- default value: 'base'"
     )
@@ -30,12 +28,8 @@ def get_script_args():
         "rebuild", help="Tear down and rebuild database in 'dev' environment only"
     )
 
-    revision_parser = subparsers.add_parser(
-        "revision", help="create new alembic revision"
-    )
-    revision_parser.add_argument(
-        "revision_message", help="alembic revision description message"
-    )
+    revision_parser = subparsers.add_parser("revision", help="create new alembic revision")
+    revision_parser.add_argument("revision_message", help="alembic revision description message")
 
     return parser.parse_args()
 
@@ -45,9 +39,7 @@ def rebuild():
         command.downgrade(alembic_cfg, "base")
         command.upgrade(alembic_cfg, "head")
     else:
-        raise EnvironmentError(
-            "The 'rebuild' command can only be run in the 'dev' environment."
-        )
+        raise EnvironmentError("The 'rebuild' command can only be run in the 'dev' environment.")
 
 
 def main():
