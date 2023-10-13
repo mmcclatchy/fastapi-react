@@ -30,31 +30,26 @@ class AccountJWT(AccountCreate):
 
 class Account(TableModel, table=True):
     id: int = Field(primary_key=True)
-    username: str = Field(max_length=100, unique=True)
-    email: str = Field(min_length=6, max_length=254)
-    _disabled: bool = Field(default=False)
-    _hashed_password: str = Field(min_length=44, max_length=72)
-    _external_oauth: bool = Field(default=False)
-
-    @property
-    def disabled(self):
-        # TODO: DELETE THIS
-
-        return False
+    username: str = Field(
+        max_length=100,
+        nullable=False,
+        unique=True,
+    )
+    email: str = Field(max_length=254)
+    disabled: bool = Field(default=False)
+    hashed_password: str = Field(max_length=72, nullable=True)
+    external_oauth: bool = Field(default=False)
 
     @property
     def password(self) -> str:
-        # return self._hashed_password
-        return "faked-hash+test"
+        return "Password Redacted"
 
     @password.setter
     def password(self, unencrypted_password: str) -> None:
-        # self._hashed_password = pwd_context.hash(unencrypted_password)
-        setattr(self, "_fake_password", f"faked-hash+{unencrypted_password}")
+        self.hashed_password = pwd_context.hash(unencrypted_password)
 
     def verify_password(self, attempted_password: str) -> bool:
-        # return self._hashed_password == pwd_context.hash(attempted_password)
-        return self.password == f"faked-hash+{attempted_password}"
+        return pwd_context.verify(attempted_password, self.hashed_password)
 
     def jwt(self) -> AccountJWT:
         return AccountJWT(sub=self.id, **self.dict())
