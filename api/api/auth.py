@@ -12,20 +12,23 @@ from utils.auth import Authenticator, Token
 router = APIRouter(prefix="")
 
 
-@router.get("/health")
-def health_check():
-    return {"message": "Health Check Successful"}
-
-
-@router.post("/token", response_model=Token)
-async def auth(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+@router.post("/signup", response_model=Token)
+async def signup(
+    form: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_session),
 ):
     authenticator = Authenticator(session=session)
-    account = await authenticator.authenticate_account(
-        username=form_data.username, password=form_data.password
-    )
+    account = await authenticator.create_account(form)
+    return Authenticator.create_access_token(account)
+
+
+@router.post("/login", response_model=Token)
+async def login(
+    form: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: AsyncSession = Depends(get_session),
+):
+    authenticator = Authenticator(session=session)
+    account = await authenticator.authenticate_account(form)
     return authenticator.create_access_token(account)
 
 
@@ -34,7 +37,8 @@ async def login_provider(provider_name: str, request: Request):
     request.session.clear()
     request.session["nonce"] = token_urlsafe(16)
     authenticator = Authenticator(provider_name=provider_name)
-    return await authenticator.authorize_redirect(request)
+    redirect_url = await authenticator.authorize_redirect(request)
+    return redirect_url
 
 
 @router.get("/auth/{provider_name}", response_model=Token)

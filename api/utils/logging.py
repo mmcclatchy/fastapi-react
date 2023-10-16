@@ -3,7 +3,7 @@ import logging
 from utils.settings import settings
 
 
-logger = logging.getLogger("app_logger")
+logger = logging.getLogger()
 logger.setLevel(logging.DEBUG if settings.env == "dev" else logging.INFO)
 
 # Create a console handler and set the level
