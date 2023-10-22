@@ -13,14 +13,19 @@ class Settings(BaseSettings):
     frontend_base_url: str = Field("http://127.0.0.1:3000", env="FRONTEND_BASE_URL")
     access_token_expire_minutes = Field(60 * 24, env="ACCESS_TOKEN_EXPIRE_MINUTES")
 
-    algorithm: str
-    secret_key: str
-    discord_client_id: str
-    discord_client_secret: str
-    github_client_id: str
-    github_client_secret: str
-    google_client_id: str
-    google_client_secret: str
+    auth0_algorithm: str
+    auth0_audience: str
+    auth0_client_id: str
+    auth0_client_secret: str
+    auth0_domain: str
+
+    @property
+    def auth0_issuer(self):
+        return f"https://{self.auth0_domain}/"
+
+    @property
+    def auth0_user_info_endpoint(self):
+        return f"{self.auth0_issuer}userinfo"
 
     class Config:
         env_file = ".env.dev" if environ.get("ENV", "dev") == "dev" else None

@@ -7,7 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 
-from db.models.account import Account  # noqa
+from db.models.user import User  # noqa
 from utils.settings import settings
 
 

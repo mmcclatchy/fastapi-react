@@ -19,7 +19,6 @@ cwd = os.getcwd()
 module_paths = glob.glob(f"/{cwd}/api/v1/*.py")
 
 for module_path in module_paths:
-    # Parse module_path down to module_name:  ../api/v1/accounts.py -> accounts
     module_name = module_path.split("/")[-1].split(".")[0]
 
     # Ignore __init__.py

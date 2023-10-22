@@ -1,20 +1,21 @@
-# Use an official Node.js runtime as the base image
 FROM node:current-alpine
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files to the container
+RUN echo "Hello World"
+
 COPY package*.json ./
 
-# Install the dependencies
-RUN npm install
+ENV NODE_ENV="development"
 
-# Copy the source code to the container
+RUN echo "NODE_ENV=$NODE_ENV"
+
 COPY . .
 
-# Build the React app
-RUN npm run build
+RUN if [ "$NODE_ENV" = "production" ]; then npm run build; fi
 
-# Set the command to run the React app
+RUN npm install
+
+EXPOSE 3000
+
 CMD ["npm", "start"]

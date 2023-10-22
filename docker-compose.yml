@@ -4,6 +4,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      env_file: .env.development
+    volumes:
+      - ./frontend:/app
     ports:
       - 3000:3000
     networks:
